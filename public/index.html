@@ -243,12 +243,6 @@
   tiltGroup.rotation.z = 0.126536; // 7.25 deg axial tilt
   scene.add(tiltGroup);
   tiltGroup.add(planet);
-  // Outer glow (corona hint)
-  (function corona() {
-    var glowGeo = new THREE.SphereGeometry(1.9, 64, 32);
-    var glowMat = new THREE.MeshBasicMaterial({ color: 0xffaa44, transparent: true, opacity: 0.12, side: THREE.BackSide });
-    scene.add(new THREE.Mesh(glowGeo, glowMat));
-  })();
 
   // Subtle starfield
   (function stars() {
