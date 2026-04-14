@@ -237,8 +237,12 @@
     map: texLoader.load('https://terraresource.net/assets/planet-textures/2k_sun.jpg')
   });
   var planet = new THREE.Mesh(geometry, material);
-  scene.add(planet);
-  planet.rotation.z = 0.126536; // 7.25 deg axial tilt
+  // Tilt group holds the axial tilt; planet spins around its local Y
+  // axis inside the tilt group, so sidereal rotation is correct.
+  var tiltGroup = new THREE.Group();
+  tiltGroup.rotation.z = 0.126536; // 7.25 deg axial tilt
+  scene.add(tiltGroup);
+  tiltGroup.add(planet);
   // Outer glow (corona hint)
   (function corona() {
     var glowGeo = new THREE.SphereGeometry(1.9, 64, 32);
