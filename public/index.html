@@ -229,17 +229,21 @@
   sun.position.set(5, 2, 5);
   scene.add(sun);
 
-  // Planet sphere
+  // Sun sphere with self-emissive surface texture
   var geometry = new THREE.SphereGeometry(1.5, 96, 64);
-  var material = new THREE.MeshStandardMaterial({
-    color: new THREE.Color('#FFD54F'),
-    emissive: new THREE.Color('#FF9500'),
-    emissiveIntensity: 0.15,
-    roughness: 0.85,
-    metalness: 0.0
+  var texLoader = new THREE.TextureLoader();
+  texLoader.crossOrigin = 'anonymous';
+  var material = new THREE.MeshBasicMaterial({
+    map: texLoader.load('https://terraresource.net/assets/planet-textures/2k_sun.jpg')
   });
   var planet = new THREE.Mesh(geometry, material);
   scene.add(planet);
+  // Outer glow (corona hint)
+  (function corona() {
+    var glowGeo = new THREE.SphereGeometry(1.9, 64, 32);
+    var glowMat = new THREE.MeshBasicMaterial({ color: 0xffaa44, transparent: true, opacity: 0.12, side: THREE.BackSide });
+    scene.add(new THREE.Mesh(glowGeo, glowMat));
+  })();
 
   // Subtle starfield
   (function stars() {
