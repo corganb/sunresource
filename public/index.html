@@ -209,7 +209,7 @@
 (function initScene() {
   var canvas = document.getElementById('scene');
   var scene = new THREE.Scene();
-  scene.background = new THREE.Color('#1a0f08');
+  scene.background = new THREE.Color('#000000');
 
   var camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 10000);
   camera.position.set(0, 1.2, 4);
@@ -321,14 +321,12 @@
     // Orbit line
     var pts = [];
     var iRad = s.i * Math.PI / 180;
-    for (var k = 0; k <= 256; k++) {
-      var M = (k / 256) * Math.PI * 2;
-      var E = solveKepler(M, s.e);
-      var nu = 2 * Math.atan2(Math.sqrt(1 + s.e) * Math.sin(E/2), Math.sqrt(1 - s.e) * Math.cos(E/2));
-      var r = s.a * (1 - s.e * Math.cos(E));
+    for (var k = 0; k <= 512; k++) {
+      // Uniform true anomaly (ν) for a smooth curve at any eccentricity
+      var nu = (k / 512) * Math.PI * 2;
+      var r = s.a * (1 - s.e * s.e) / (1 + s.e * Math.cos(nu));
       var x = r * Math.cos(nu);
       var z = r * Math.sin(nu);
-      // Rotate by inclination around X
       var y = z * Math.sin(iRad);
       z = z * Math.cos(iRad);
       pts.push(new THREE.Vector3(x, y, z));
