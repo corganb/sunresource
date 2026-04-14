@@ -208,7 +208,7 @@
   scene.background = new THREE.Color('#1a0f08');
 
   var camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 10000);
-  camera.position.set(0, 1.2, 4);
+  camera.position.set(0, 100, 400);
 
   var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
@@ -232,9 +232,136 @@
   // Tilt group holds the axial tilt; planet spins around its local Y
   // axis inside the tilt group, so sidereal rotation is correct.
   var tiltGroup = new THREE.Group();
-  tiltGroup.rotation.z = 0.126536; // 7.25 deg axial tilt
+  tiltGroup.rotation.z = 0.126536; // 7.25 deg axial tilt relative to ecliptic
   scene.add(tiltGroup);
   tiltGroup.add(planet);
+
+  // ═══ SOLAR-ORBITING SPACECRAFT ═══
+  // Real missions currently operating in the inner heliosphere.
+  // All orbits are approximate Keplerian elements; v0.3 will integrate
+  // live JPL Horizons queries.
+  //
+  // Scene scale: Sun radius 1.5 = 695,700 km real, so 1 unit = 463,800 km.
+  // Earth orbit (1 AU = 149.6 M km) = 322 units. Mercury orbit = 124 units.
+  // Parker Solar Probe perihelion (6.1 M km) = 13 units.
+  var SCENE_UNIT_KM = 695700 / 1.5;
+  var SOLAR_SPACECRAFT = [
+    {
+      name: 'Parker Solar Probe',
+      // a = 0.388 AU = 58 M km = 125 units; e = 0.853
+      a_km: 58e6,
+      e: 0.853,
+      i: 3.4,
+      period_days: 88,
+      color: 0xffaa55,
+      radius: 0.1,
+    },
+    {
+      name: 'SOHO',
+      // Sun-Earth L1, ~1.5 M km from Earth, ~0.99 AU from Sun
+      // We place it just inside Earth's orbit at a_km ~148 M km
+      a_km: 148e6,
+      e: 0.002,
+      i: 7.25,
+      period_days: 365.25,
+      color: 0xaaddff,
+      radius: 0.1,
+    },
+    {
+      name: 'SolO',
+      // ESA Solar Orbiter, elliptical 0.28-1.2 AU, period 168 days
+      a_km: 110e6,
+      e: 0.77,
+      i: 24.0,  // inclined ecliptic-raising orbit
+      period_days: 168,
+      color: 0xddccff,
+      radius: 0.1,
+    },
+    {
+      name: 'SDO',
+      // Geosynchronous from Earth, so effectively at Earth's heliocentric position
+      // Place at Earth's orbit
+      a_km: 149.6e6,
+      e: 0.0167,
+      i: 7.25,
+      period_days: 365.25,
+      color: 0xffff99,
+      radius: 0.1,
+    },
+    {
+      name: 'STEREO-A',
+      // NASA STEREO, ahead of Earth in solar orbit (slightly inside Earth's)
+      a_km: 144e6,
+      e: 0.006,
+      i: 7.25,
+      period_days: 346,
+      color: 0xffccaa,
+      radius: 0.1,
+    },
+  ];
+  var scMeshes = [];
+  SOLAR_SPACECRAFT.forEach(function(s, idx) {
+    s.a = s.a_km / SCENE_UNIT_KM;
+    s.period = s.period_days * 86400;
+    // Arbitrary phase offset so they're not all stacked
+    s.phase = idx * (Math.PI * 2 / SOLAR_SPACECRAFT.length);
+
+    var mesh = new THREE.Mesh(
+      new THREE.SphereGeometry(s.radius, 16, 12),
+      new THREE.MeshBasicMaterial({ color: s.color })
+    );
+    scene.add(mesh);  // NOT in tiltGroup since orbits are heliocentric not solar-equator-relative
+    s.mesh = mesh;
+    scMeshes.push(s);
+
+    // Orbit line
+    var pts = [];
+    var iRad = s.i * Math.PI / 180;
+    for (var k = 0; k <= 256; k++) {
+      var M = (k / 256) * Math.PI * 2;
+      var E = solveKepler(M, s.e);
+      var nu = 2 * Math.atan2(Math.sqrt(1 + s.e) * Math.sin(E/2), Math.sqrt(1 - s.e) * Math.cos(E/2));
+      var r = s.a * (1 - s.e * Math.cos(E));
+      var x = r * Math.cos(nu);
+      var z = r * Math.sin(nu);
+      // Rotate by inclination around X
+      var y = z * Math.sin(iRad);
+      z = z * Math.cos(iRad);
+      pts.push(new THREE.Vector3(x, y, z));
+    }
+    scene.add(new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineBasicMaterial({ color: s.color, transparent: true, opacity: 0.35 })
+    ));
+  });
+
+  function solveKepler(M, e) {
+    var E = M;
+    for (var i = 0; i < 12; i++) {
+      var f = E - e * Math.sin(E) - M;
+      var fp = 1 - e * Math.cos(E);
+      E -= f / fp;
+    }
+    return E;
+  }
+
+  var SCENE_EPOCH_SEC = Date.now() / 1000;
+  function updateMoons() {
+    var simTime = (Date.now() / 1000 - SCENE_EPOCH_SEC) * 800; // 800x time compression
+    scMeshes.forEach(function(s) {
+      var n = (Math.PI * 2) / s.period;
+      var M = (s.phase + n * simTime) % (Math.PI * 2);
+      var E = solveKepler(M, s.e);
+      var nu = 2 * Math.atan2(Math.sqrt(1 + s.e) * Math.sin(E/2), Math.sqrt(1 - s.e) * Math.cos(E/2));
+      var r = s.a * (1 - s.e * Math.cos(E));
+      var x = r * Math.cos(nu);
+      var z = r * Math.sin(nu);
+      var iRad = s.i * Math.PI / 180;
+      var y = z * Math.sin(iRad);
+      z = z * Math.cos(iRad);
+      s.mesh.position.set(x, y, z);
+    });
+  }
 
   // Subtle starfield
   (function stars() {
@@ -259,7 +386,7 @@
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
   controls.minDistance = 2.2;
-  controls.maxDistance = 40;
+  controls.maxDistance = 2000;
 
   // Resize
   window.addEventListener('resize', function () {
@@ -272,6 +399,7 @@
   function tick() {
     requestAnimationFrame(tick);
     planet.rotation.y += 0.000041;
+    updateMoons();
     controls.update();
     renderer.render(scene, camera);
   }
