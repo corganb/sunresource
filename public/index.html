@@ -160,17 +160,17 @@
 <div class="content">
   <div class="sidebar-left">
     <h3>Body Facts</h3>
-    <div class="info-row"><span>Name</span><span>Sun</span></div>
     <div class="info-row"><span>Radius</span><span>695,700 km</span></div>
-    <div class="info-row"><span>Platform</span><span>v0.1</span></div>
+    <div class="info-row"><span>Mass</span><span>1.989 × 10³⁰ kg</span></div>
+    <div class="info-row"><span>Moons</span><span>0</span></div>
+    <div class="info-row"><span>Axial tilt</span><span>7.25&deg;</span></div>
+    <div class="info-row"><span>Orbital period</span><span>(galactic orbit: 230 Myr at 26 kly from Sgr A*)</span></div>
+    <div class="info-row"><span>Sidereal day</span><span>~25.4 d (equator)</span></div>
+    <div class="info-row"><span>Dist. from Sun</span><span>0 km</span></div>
 
-    <h3>Layer Catalog</h3>
+    <h3>Roadmap v0.2</h3>
     <div class="coming-soon">
-      Live data layers for Sun are in active development. Watch
-      <a href="https://terraresource.net" style="color:var(--accent);text-decoration:none">TerraResource</a>,
-      <a href="https://moonresource.com" style="color:var(--accent);text-decoration:none">MoonResource</a>,
-      and <a href="https://marsresource.net" style="color:var(--accent);text-decoration:none">MarsResource</a>
-      for the capability pattern.
+      SDO live imagery; sunspot cycle tracker; Parker Solar Probe proximity; solar flare alerts; coronal hole overlay; magnetic field lines.
     </div>
 
     <h3>Resource Systems</h3>
@@ -238,6 +238,7 @@
   });
   var planet = new THREE.Mesh(geometry, material);
   scene.add(planet);
+  planet.rotation.z = 0.126536; // 7.25 deg axial tilt
   // Outer glow (corona hint)
   (function corona() {
     var glowGeo = new THREE.SphereGeometry(1.9, 64, 32);
@@ -280,7 +281,7 @@
   // Animate
   function tick() {
     requestAnimationFrame(tick);
-    planet.rotation.y += 0.0015;
+    planet.rotation.y += 0.000041;
     controls.update();
     renderer.render(scene, camera);
   }
