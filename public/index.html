@@ -315,17 +315,89 @@
   scene.add(spacecraftGroup);
   scene.add(orbitLinesGroup);
 
+  // Each real mission gets a distinct 3D primitive Group built from real
+  // spacecraft reference photos, scaled into Three.js units. Shared helpers
+  // for panel + box materials keep the look consistent across missions.
+  function makeBus(w, h, d, color) {
+    return new THREE.Mesh(
+      new THREE.BoxGeometry(w, h, d),
+      new THREE.MeshStandardMaterial({ color: color, roughness: 0.45, metalness: 0.5 })
+    );
+  }
+  function makePanel(w, h) {
+    return new THREE.Mesh(
+      new THREE.PlaneGeometry(w, h),
+      new THREE.MeshStandardMaterial({
+        color: 0x1a2a55, side: THREE.DoubleSide, roughness: 0.2, metalness: 0.6,
+        emissive: 0x0a1a44, emissiveIntensity: 0.3
+      })
+    );
+  }
+  function makeSolarSpacecraft(variant) {
+    var g = new THREE.Group();
+    if (variant === 'Parker Solar Probe') {
+      // Conical heat shield on top of a compact bus. The shield is the
+      // most visually distinctive feature of Parker.
+      var shield = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.11, 0.11, 0.02, 24),
+        new THREE.MeshStandardMaterial({ color: 0xf0efe8, roughness: 0.35, metalness: 0.2 })
+      );
+      shield.position.y = 0.04;
+      g.add(shield);
+      g.add(makeBus(0.05, 0.05, 0.05, 0xe0e0e0));
+      var lp = makePanel(0.09, 0.035); lp.position.set(-0.08, 0, 0); g.add(lp);
+      var rp = makePanel(0.09, 0.035); rp.position.set(0.08, 0, 0); g.add(rp);
+    } else if (variant === 'SOHO') {
+      // SOHO has a boxy bus with 2 rectangular solar wings and a round
+      // high-gain dish pointing toward Earth.
+      g.add(makeBus(0.06, 0.05, 0.05, 0xcfcfcf));
+      var lp = makePanel(0.13, 0.045); lp.position.set(-0.105, 0, 0); g.add(lp);
+      var rp = makePanel(0.13, 0.045); rp.position.set(0.105, 0, 0); g.add(rp);
+      var dish = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.025, 0.025, 0.004, 20),
+        new THREE.MeshStandardMaterial({ color: 0xe8e8e8, roughness: 0.3, metalness: 0.5 })
+      );
+      dish.position.set(0, 0.035, 0);
+      g.add(dish);
+    } else if (variant === 'SolO') {
+      // Solar Orbiter: compact bus with square heat shield face and two
+      // short solar panel wings folded slightly back.
+      var heat = new THREE.Mesh(
+        new THREE.BoxGeometry(0.09, 0.09, 0.01),
+        new THREE.MeshStandardMaterial({ color: 0x2a1d14, roughness: 0.85, metalness: 0.1 })
+      );
+      heat.position.z = 0.035;
+      g.add(heat);
+      g.add(makeBus(0.05, 0.05, 0.06, 0xd0d0d0));
+      var lp = makePanel(0.10, 0.04); lp.position.set(-0.08, 0, 0); g.add(lp);
+      var rp = makePanel(0.10, 0.04); rp.position.set(0.08, 0, 0); g.add(rp);
+    } else if (variant === 'SDO') {
+      // Classic geostationary look: boxy bus with two long solar wings.
+      g.add(makeBus(0.05, 0.05, 0.07, 0xf0d888));
+      var lp = makePanel(0.12, 0.035); lp.position.set(-0.10, 0, 0); g.add(lp);
+      var rp = makePanel(0.12, 0.035); rp.position.set(0.10, 0, 0); g.add(rp);
+    } else if (variant === 'STEREO-A') {
+      // Smaller asymmetric configuration with a single wing.
+      g.add(makeBus(0.05, 0.04, 0.05, 0xe0d4c0));
+      var wing = makePanel(0.12, 0.045);
+      wing.position.set(0.10, 0, 0);
+      g.add(wing);
+    } else {
+      // Fallback generic box + 2 panels
+      g.add(makeBus(0.05, 0.04, 0.04, 0xcccccc));
+      var l = makePanel(0.10, 0.04); l.position.set(-0.08, 0, 0); g.add(l);
+      var r = makePanel(0.10, 0.04); r.position.set(0.08, 0, 0); g.add(r);
+    }
+    return g;
+  }
+
   var scMeshes = [];
   SOLAR_SPACECRAFT.forEach(function(s, idx) {
     s.a = s.a_km / SCENE_UNIT_KM;
     s.period = s.period_days * 86400;
-    // Arbitrary phase offset so they're not all stacked
     s.phase = idx * (Math.PI * 2 / SOLAR_SPACECRAFT.length);
 
-    var mesh = new THREE.Mesh(
-      new THREE.SphereGeometry(s.radius, 16, 12),
-      new THREE.MeshBasicMaterial({ color: s.color })
-    );
+    var mesh = makeSolarSpacecraft(s.name);
     spacecraftGroup.add(mesh);
     s.mesh = mesh;
     scMeshes.push(s);
