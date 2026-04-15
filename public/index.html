@@ -124,6 +124,16 @@
 
   /* Toast */
   #rs-toast { position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%); z-index: 300; background: rgba(14,16,20,0.92); backdrop-filter: blur(12px); border: 1px solid var(--b2); border-radius: 8px; padding: 8px 18px; font-size: 12px; color: var(--t1); pointer-events: none; opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
+
+  /* Interactive layer list (shared pattern across all planet sites) */
+  .ly-item { display: flex; gap: 8px; align-items: flex-start; padding: 6px 4px; border-bottom: 1px dashed rgba(255,255,255,0.04); cursor: pointer; user-select: none; }
+  .ly-item:hover { background: rgba(255,255,255,0.02); }
+  .ly-check { width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--b2); flex-shrink: 0; margin-top: 2px; background: transparent; cursor: pointer; position: relative; }
+  .ly-check.on { background: var(--accent); border-color: var(--accent); }
+  .ly-check.on::after { content: ''; position: absolute; left: 3px; top: 0px; width: 5px; height: 9px; border: solid #000; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+  .ly-body { flex: 1; min-width: 0; }
+  .ly-name { font-size: 11.5px; color: var(--t2); font-weight: 500; }
+  .ly-desc { font-size: 9.5px; color: var(--t4); margin-top: 2px; line-height: 1.35; }
 </style>
 </head>
 <body>
@@ -160,13 +170,8 @@
     <div class="info-row"><span>Sidereal day</span><span>~25.4 d (equator)</span></div>
     <div class="info-row"><span>Dist. from Sun</span><span>0 km</span></div>
 
-    <h3>Scientific Layers</h3>
-    <div class="info-row"><span>Sun surface</span><span style="font-size:9.5px;text-align:right">8K SDO HMI photosphere texture</span></div>
-    <div class="info-row"><span>Parker Solar Probe</span><span style="font-size:9.5px;text-align:right">58 Mkm, e=0.853, 88-day orbit</span></div>
-    <div class="info-row"><span>SOHO</span><span style="font-size:9.5px;text-align:right">Sun-Earth L1 Lagrange point</span></div>
-    <div class="info-row"><span>Solar Orbiter (ESA)</span><span style="font-size:9.5px;text-align:right">110 Mkm, e=0.77, 168-day orbit</span></div>
-    <div class="info-row"><span>SDO</span><span style="font-size:9.5px;text-align:right">Earth-synced geosynchronous</span></div>
-    <div class="info-row"><span>STEREO-A</span><span style="font-size:9.5px;text-align:right">144 Mkm heliocentric orbit</span></div>
+    <h3>Layers</h3>
+    <div id="layer-list"></div>
 
 
     <h3>Resource Systems</h3>
@@ -189,7 +194,7 @@
   <div class="statusbar-cell"><span class="label">FRAME</span><span class="value">Body-Fixed</span></div>
   <div class="statusbar-cell"><span class="label">BODY</span><span class="value">Sun</span></div>
   <div class="sb-cells-right">
-    <div class="statusbar-cell"><span class="label">VERSION</span><span class="value">v0.1</span></div>
+    <div class="statusbar-cell"><span class="label">VERSION</span><span class="value">v0.2</span></div>
   </div>
 </div>
 
@@ -303,6 +308,13 @@
       radius: 0.1,
     },
   ];
+  // Two parent Groups let the sidebar toggle all spacecraft meshes and all
+  // orbit polylines independently.
+  var spacecraftGroup = new THREE.Group();
+  var orbitLinesGroup = new THREE.Group();
+  scene.add(spacecraftGroup);
+  scene.add(orbitLinesGroup);
+
   var scMeshes = [];
   SOLAR_SPACECRAFT.forEach(function(s, idx) {
     s.a = s.a_km / SCENE_UNIT_KM;
@@ -314,15 +326,14 @@
       new THREE.SphereGeometry(s.radius, 16, 12),
       new THREE.MeshBasicMaterial({ color: s.color })
     );
-    scene.add(mesh);  // NOT in tiltGroup since orbits are heliocentric not solar-equator-relative
+    spacecraftGroup.add(mesh);
     s.mesh = mesh;
     scMeshes.push(s);
 
-    // Orbit line
+    // Orbit line (uniform true-anomaly sampling stays smooth at any e)
     var pts = [];
     var iRad = s.i * Math.PI / 180;
     for (var k = 0; k <= 512; k++) {
-      // Uniform true anomaly (ν) for a smooth curve at any eccentricity
       var nu = (k / 512) * Math.PI * 2;
       var r = s.a * (1 - s.e * s.e) / (1 + s.e * Math.cos(nu));
       var x = r * Math.cos(nu);
@@ -331,7 +342,7 @@
       z = z * Math.cos(iRad);
       pts.push(new THREE.Vector3(x, y, z));
     }
-    scene.add(new THREE.Line(
+    orbitLinesGroup.add(new THREE.Line(
       new THREE.BufferGeometry().setFromPoints(pts),
       new THREE.LineBasicMaterial({ color: s.color, transparent: true, opacity: 0.35 })
     ));
@@ -449,7 +460,8 @@
     solarSystemGroup.visible = true;
   })();
 
-  // Subtle starfield
+  // Subtle starfield (toggleable).
+  var starfield;
   (function stars() {
     var geo = new THREE.BufferGeometry();
     var count = 3000;
@@ -464,7 +476,8 @@
     }
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     var mat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.8, sizeAttenuation: false, transparent: true, opacity: 0.8 });
-    scene.add(new THREE.Points(geo, mat));
+    starfield = new THREE.Points(geo, mat);
+    scene.add(starfield);
   })();
 
   // Controls
@@ -490,6 +503,50 @@
     renderer.render(scene, camera);
   }
   tick();
+
+  // ═══ INTERACTIVE LAYER LIST ═══
+  var LAYERS = [
+    { id: 'surface',    name: 'Sun surface',       desc: '8K SDO HMI photosphere texture', visible: true },
+    { id: 'spacecraft', name: 'Solar spacecraft',  desc: 'Parker, SOHO, SolO, SDO, STEREO-A', visible: true },
+    { id: 'orbits',     name: 'Spacecraft orbits', desc: 'Keplerian trajectories', visible: true },
+    { id: 'context',    name: 'Solar System context', desc: 'Directions to each major body', visible: true },
+    { id: 'stars',      name: 'Starfield',         desc: 'Procedural background stars', visible: true },
+  ];
+
+  function setLayerVisible(id, on) {
+    var l = LAYERS.find(function(x) { return x.id === id; });
+    if (!l) return;
+    l.visible = on;
+    switch (id) {
+      case 'surface':    planet.visible = on; break;
+      case 'spacecraft': spacecraftGroup.visible = on; break;
+      case 'orbits':     orbitLinesGroup.visible = on; break;
+      case 'context':    if (solarSystemGroup) solarSystemGroup.visible = on; break;
+      case 'stars':      if (starfield) starfield.visible = on; break;
+    }
+    renderLayerList();
+  }
+
+  function renderLayerList() {
+    var list = document.getElementById('layer-list');
+    if (!list) return;
+    var html = '';
+    LAYERS.forEach(function(l) {
+      html += '<div class="ly-item" data-layer="' + l.id + '">' +
+              '<div class="ly-check ' + (l.visible ? 'on' : '') + '"></div>' +
+              '<div class="ly-body"><div class="ly-name">' + l.name + '</div><div class="ly-desc">' + l.desc + '</div></div>' +
+              '</div>';
+    });
+    list.innerHTML = html;
+    list.querySelectorAll('.ly-item').forEach(function(el) {
+      el.addEventListener('click', function() {
+        var id = el.getAttribute('data-layer');
+        var l = LAYERS.find(function(x) { return x.id === id; });
+        if (l) setLayerVisible(id, !l.visible);
+      });
+    });
+  }
+  renderLayerList();
 
 })();
 
