@@ -249,7 +249,7 @@
   var texLoader = new THREE.TextureLoader();
   texLoader.crossOrigin = 'anonymous';
   var material = new THREE.MeshBasicMaterial({
-    map: texLoader.load('https://terraresource.net/assets/planet-textures/8k_sun.jpg')
+    map: texLoader.load('https://terraresource.net/assets/planet-textures/8k_sun.jpg', function(t) { t.anisotropy = renderer.capabilities.getMaxAnisotropy(); t.minFilter = THREE.LinearMipmapLinearFilter; t.needsUpdate = true; })
   });
   var planet = new THREE.Mesh(geometry, material);
   // Tilt group holds the axial tilt; planet spins around its local Y
