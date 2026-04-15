@@ -405,6 +405,23 @@
     return g;
   }
 
+  function makeCraftLabel(text, color) {
+    var c = document.createElement('canvas');
+    c.width = 256; c.height = 48;
+    var ctx = c.getContext('2d');
+    ctx.font = 'bold 20px -apple-system, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 4;
+    ctx.strokeText(text, 128, 24);
+    ctx.fillStyle = '#' + color.toString(16).padStart(6, '0');
+    ctx.fillText(text, 128, 24);
+    var tex = new THREE.CanvasTexture(c);
+    var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false }));
+    sp.scale.set(0.9, 0.17, 1);
+    sp.position.set(0, 0.15, 0);
+    return sp;
+  }
+
   var scMeshes = [];
   SOLAR_SPACECRAFT.forEach(function(s, idx) {
     s.a = s.a_km / SCENE_UNIT_KM;
@@ -412,6 +429,7 @@
     s.phase = idx * (Math.PI * 2 / SOLAR_SPACECRAFT.length);
 
     var mesh = makeSolarSpacecraft(s.name);
+    mesh.add(makeCraftLabel(s.name, s.color));
     spacecraftGroup.add(mesh);
     s.mesh = mesh;
     scMeshes.push(s);
