@@ -541,88 +541,88 @@
   }
 
 
-  // ═══ SOLAR SYSTEM CONTEXT LAYER ═══
-  // Renders the Sun + 7 other planets as labeled markers on a celestial
-  // sphere around the primary body (radius 15 scene units). Directions
-  // use real heliocentric Kepler positions from RS.getPlanetPositionXYZ
-  // - only the direction is visualized, not the distance. Click any
-  // marker to open that body's sibling site in a new tab.
-  var solarSystemGroup;
-  (function buildSolarSystemLayer() {
-    var PRIMARY_NAME = 'Sun';
-    var RADIUS = 15;
-    var BODIES = [
-      { name: 'Sun',     color: '#FFD54F', url: 'https://sunresource.net' },
-      { name: 'Mercury', color: '#a0a0a0', url: 'https://mercuryresource.net' },
-      { name: 'Venus',   color: '#e8dcc0', url: 'https://venusresource.net' },
-      { name: 'Earth',   color: '#4da6ff', url: 'https://terraresource.net' },
-      { name: 'Mars',    color: '#c45030', url: 'https://marsresource.net' },
-      { name: 'Jupiter', color: '#c88040', url: 'https://jupiterresource.net' },
-      { name: 'Saturn',  color: '#d4b46a', url: 'https://saturnresource.net' },
-      { name: 'Uranus',  color: '#7ec8d4', url: 'https://uranusresource.net' },
-      { name: 'Neptune', color: '#4060d4', url: 'https://neptuneresource.net' },
-    ];
+  // ═══ PLANET ORBITS (real heliocentric Kepler) ═══
+  // Inner planets rendered at their real heliocentric distances with orbit
+  // rings and Kepler-driven positions from RS.PLANETS_DATA. Each planet
+  // sits ON its orbit ring at the correct angular position for the current
+  // simulation time. Outer planets (Jupiter-Neptune) are included but
+  // their orbits extend far beyond the default camera frame.
+  var solarSystemGroup = new THREE.Group();
+  scene.add(solarSystemGroup);
+  var planetMeshes = [];
+  (function buildPlanetOrbits() {
+    if (!window.RS || !RS.PLANETS_DATA) return;
+    var AU_KM = 149597870.7;
+    var PLANET_COLORS = {
+      Mercury: '#a0a0a0', Venus: '#e8dcc0', Earth: '#4da6ff', Mars: '#c45030',
+      Jupiter: '#c88040', Saturn: '#d4b46a', Uranus: '#7ec8d4', Neptune: '#4060d4',
+    };
+    RS.PLANETS_DATA.forEach(function(pd) {
+      var color = PLANET_COLORS[pd.name];
+      if (!color) return;
+      var a = (pd.a * AU_KM) / SCENE_UNIT_KM;  // semi-major axis in scene units
+      var e = pd.e;
+      var iRad = pd.i * Math.PI / 180;
 
-    // Compute primary body's heliocentric position. Sun is at origin.
-    var primaryHelio;
-    if (PRIMARY_NAME === 'Sun') {
-      primaryHelio = { x: 0, y: 0, z: 0 };
-    } else if (window.RS && RS.getPlanetPositionXYZ) {
-      primaryHelio = RS.getPlanetPositionXYZ(PRIMARY_NAME) || { x: 0, y: 0, z: 0 };
-    } else {
-      primaryHelio = { x: 0, y: 0, z: 0 };
-    }
-
-    solarSystemGroup = new THREE.Group();
-    scene.add(solarSystemGroup);
-
-    BODIES.forEach(function(b) {
-      if (b.name === PRIMARY_NAME) return;
-
-      var helio;
-      if (b.name === 'Sun') {
-        helio = { x: 0, y: 0, z: 0 };
-      } else if (window.RS && RS.getPlanetPositionXYZ) {
-        helio = RS.getPlanetPositionXYZ(b.name) || { x: 1e11, y: 0, z: 0 };
-      } else {
-        helio = { x: 1e11, y: 0, z: 0 };
+      // Orbit ring (elliptical, inclined)
+      var pts = [];
+      for (var k = 0; k <= 256; k++) {
+        var nu = (k / 256) * Math.PI * 2;
+        var r = a * (1 - e * e) / (1 + e * Math.cos(nu));
+        var x = r * Math.cos(nu);
+        var z = r * Math.sin(nu);
+        var y = z * Math.sin(iRad);
+        z = z * Math.cos(iRad);
+        pts.push(new THREE.Vector3(x, y, z));
       }
+      solarSystemGroup.add(new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(pts),
+        new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.25 })
+      ));
 
-      var dx = helio.x - primaryHelio.x;
-      var dy = helio.y - primaryHelio.y;
-      var dz = helio.z - primaryHelio.z;
-      var mag = Math.sqrt(dx*dx + dy*dy + dz*dz);
-      if (mag === 0) return;
-      var ux = dx / mag, uy = dy / mag, uz = dz / mag;
+      // Planet dot
+      var dotSize = pd.name === 'Jupiter' || pd.name === 'Saturn' ? 0.8 : 0.3;
+      var dot = new THREE.Mesh(
+        new THREE.SphereGeometry(dotSize, 16, 12),
+        new THREE.MeshBasicMaterial({ color: color })
+      );
+      solarSystemGroup.add(dot);
 
-      // Marker sphere
-      var markerGeo = new THREE.SphereGeometry(0.06, 12, 8);
-      var markerMat = new THREE.MeshBasicMaterial({ color: b.color });
-      var marker = new THREE.Mesh(markerGeo, markerMat);
-      marker.position.set(ux * RADIUS, uz * RADIUS, uy * RADIUS); // swap y<->z for Three.js convention
-      marker.userData.url = b.url;
-      solarSystemGroup.add(marker);
-
-      // Canvas text label
+      // Label
       var c = document.createElement('canvas');
       c.width = 256; c.height = 48;
       var lctx = c.getContext('2d');
       lctx.font = '500 16px -apple-system, sans-serif';
       lctx.textAlign = 'center'; lctx.textBaseline = 'middle';
       lctx.strokeStyle = '#000'; lctx.lineWidth = 3;
-      lctx.strokeText(b.name, 128, 24);
-      lctx.fillStyle = b.color;
-      lctx.fillText(b.name, 128, 24);
+      lctx.strokeText(pd.name, 128, 24);
+      lctx.fillStyle = color;
+      lctx.fillText(pd.name, 128, 24);
       var tex = new THREE.CanvasTexture(c);
       var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false }));
-      sp.scale.set(0.45, 0.085, 1);
-      sp.position.set(0, 0.12, 0);
-      marker.add(sp);
-    });
+      sp.scale.set(dotSize * 4, dotSize * 0.75, 1);
+      sp.position.set(0, dotSize + 0.3, 0);
+      dot.add(sp);
 
-    // Start visible so users see the context immediately
-    solarSystemGroup.visible = true;
+      planetMeshes.push({ pd: pd, mesh: dot, a: a, e: e, iRad: iRad });
+    });
   })();
+
+  // Update planet positions each frame using the same Kepler solver
+  function updatePlanets() {
+    if (!planetMeshes.length) return;
+    planetMeshes.forEach(function(p) {
+      // Use RS.getPlanetPositionXYZ for true current position
+      var pos = RS.getPlanetPositionXYZ ? RS.getPlanetPositionXYZ(p.pd.name) : null;
+      if (!pos) return;
+      // Convert from meters to scene units
+      var x = pos.x / (SCENE_UNIT_KM * 1000);
+      var z = pos.y / (SCENE_UNIT_KM * 1000);  // swap y->z for Three.js
+      var y = pos.z / (SCENE_UNIT_KM * 1000);  // swap z->y for Three.js
+      p.mesh.position.set(x, y, z);
+    });
+  }
+  updatePlanets(); // initial position
 
   // Subtle starfield (toggleable).
   var starfield;
@@ -663,6 +663,7 @@
     requestAnimationFrame(tick);
     planet.rotation.y += 0.0000029;
     updateMoons();
+    updatePlanets();
     controls.update();
     renderer.render(scene, camera);
   }
@@ -674,7 +675,7 @@
     { id: 'spacecraft', name: 'Solar spacecraft',  desc: 'Parker, SOHO, SolO, SDO, STEREO-A', visible: true },
     { id: 'orbits',     name: 'Spacecraft orbits', desc: 'Keplerian trajectories', visible: true },
     { id: 'scale',      name: 'Scale rings',       desc: '0.1 / 0.3 / 1.0 AU reference rings', visible: true },
-    { id: 'context',    name: 'Solar System context', desc: 'Directions to each major body', visible: true },
+    { id: 'context',    name: 'Planet orbits',     desc: 'Mercury through Neptune at real scale', visible: true },
     { id: 'stars',      name: 'Starfield',         desc: 'Procedural background stars', visible: true },
   ];
 
