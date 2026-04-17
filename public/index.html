@@ -442,6 +442,44 @@
     spacecraftGroup.add(mesh);
     s.mesh = mesh;
     scMeshes.push(s);
+    // Attach analysis data per spacecraft
+    var SUN_SC_ANALYSIS = {
+      'Parker Solar Probe': {
+        type: 'Active spacecraft (NASA)',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Parker_Solar_Probe_spacecraft_model.png/220px-Parker_Solar_Probe_spacecraft_model.png',
+        desc: 'Closest human-made object to the Sun. First spacecraft to fly through the solar corona. Heat shield withstands 1,370 C while instruments stay at ~30 C. Has broken speed records multiple times (635,000+ km/h).',
+        fields: [{label:'Launch',value:'2018-08-12'},{label:'Perihelion',value:'6.16 M km (0.046 AU)'},{label:'Speed record',value:'635,266 km/h'},{label:'Orbit period',value:'88 days'},{label:'Heat shield',value:'11.4 cm carbon composite'}],
+        link: { url: 'https://parkersolarprobe.jhuapl.edu', text: 'Parker Solar Probe' },
+      },
+      'SOHO': {
+        type: 'Active spacecraft (ESA/NASA)',
+        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/SOHO_spacecraft.png/220px-SOHO_spacecraft.png',
+        desc: 'Solar and Heliospheric Observatory at Sun-Earth L1 Lagrange point since 1996. Primary source of real-time solar wind data. Has discovered 4,000+ comets as a side mission via its coronagraphs.',
+        fields: [{label:'Launch',value:'1995-12-02'},{label:'Location',value:'Sun-Earth L1'},{label:'Dist from Earth',value:'~1.5 M km'},{label:'Instruments',value:'12'},{label:'Comets found',value:'4,000+'}],
+        link: { url: 'https://soho.nascom.nasa.gov', text: 'SOHO Mission' },
+      },
+      'SolO': {
+        type: 'Active spacecraft (ESA)',
+        desc: 'ESA Solar Orbiter. Closest images of the Sun ever taken. Elliptical orbit gradually increasing inclination to image the solar poles for the first time.',
+        fields: [{label:'Launch',value:'2020-02-10'},{label:'Perihelion',value:'0.28 AU'},{label:'Orbit period',value:'168 days'},{label:'Inclination',value:'increasing to 33 deg'},{label:'Instruments',value:'10 (remote + in-situ)'}],
+        link: { url: 'https://www.esa.int/Science_Exploration/Space_Science/Solar_Orbiter', text: 'ESA Solar Orbiter' },
+      },
+      'SDO': {
+        type: 'Active spacecraft (NASA)',
+        desc: 'Solar Dynamics Observatory in geosynchronous orbit. Captures a 4K image of the Sun every 0.75 seconds across 10 wavelengths. Primary source of solar activity imagery.',
+        fields: [{label:'Launch',value:'2010-02-11'},{label:'Orbit',value:'Geosynchronous (35,789 km)'},{label:'Data rate',value:'1.5 TB/day'},{label:'Resolution',value:'4096 x 4096 px'},{label:'Cadence',value:'0.75 sec / image'}],
+        link: { url: 'https://sdo.gsfc.nasa.gov', text: 'NASA SDO' },
+      },
+      'STEREO-A': {
+        type: 'Active spacecraft (NASA)',
+        desc: 'One of two Solar Terrestrial Relations Observatory spacecraft (STEREO-B lost contact 2014). Orbits slightly ahead of Earth providing a different viewing angle of the Sun for stereoscopic solar imaging.',
+        fields: [{label:'Launch',value:'2006-10-26'},{label:'Orbit',value:'Heliocentric, ahead of Earth'},{label:'Period',value:'346 days'},{label:'STEREO-B',value:'Contact lost 2014-10-01'}],
+        link: { url: 'https://stereo.gsfc.nasa.gov', text: 'NASA STEREO' },
+      },
+    };
+    var scData = SUN_SC_ANALYSIS[s.name];
+    if (scData) mesh.userData = { _analysis: { name: s.name, type: scData.type, image: scData.image, desc: scData.desc, fields: scData.fields, link: scData.link, icon: '\uD83D\uDE80' } };
+
 
     // Orbit line (uniform true-anomaly sampling stays smooth at any e)
     var pts = [];
