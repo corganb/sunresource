@@ -217,7 +217,7 @@
 <!-- Three.js (via jsdelivr UMD) -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
-<script src="resource-systems-core.js?v=14"></script>
+<script src="resource-systems-core.js?v=15"></script>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════════════
@@ -258,6 +258,15 @@
   tiltGroup.rotation.z = 0.126536; // 7.25 deg axial tilt relative to ecliptic
   scene.add(tiltGroup);
   tiltGroup.add(planet);
+
+  // Analysis data for the Sun
+  planet.userData = { _analysis: {
+    name: 'Sun', type: 'G2V main-sequence star',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/The_Sun_by_the_Atmospheric_Imaging_Assembly_of_NASA%27s_Solar_Dynamics_Observatory_-_20100819.jpg/220px-The_Sun_by_the_Atmospheric_Imaging_Assembly_of_NASA%27s_Solar_Dynamics_Observatory_-_20100819.jpg',
+    desc: 'The Sun contains 99.86% of the mass in the Solar System. Core temperature ~15.7 million K. Surface (photosphere) ~5,778 K. Currently in the main sequence, ~4.6 billion years old with ~5 billion remaining.',
+    fields: [{label:'Radius',value:'695,700 km'},{label:'Mass',value:'1.989 x 10\u00B3\u2070 kg'},{label:'Surface temp',value:'5,778 K'},{label:'Core temp',value:'15.7 million K'},{label:'Age',value:'4.6 billion years'},{label:'Spectral type',value:'G2V'}],
+  }};
+
 
   // ═══ SOLAR-ORBITING SPACECRAFT ═══
   // Real missions currently operating in the inner heliosphere.
@@ -724,6 +733,41 @@
     });
   })();
 
+
+
+  // ═══ ANALYSIS PANEL CLICK HANDLER ═══
+  (function wireAnalysis() {
+    var rc = new THREE.Raycaster();
+    var mouse = new THREE.Vector2();
+    canvas.addEventListener('click', function(ev) {
+      if (!window.RS || !RS.showAnalysisPanel) return;
+      var rect = canvas.getBoundingClientRect();
+      mouse.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+      rc.setFromCamera(mouse, camera);
+      var targets = [];
+      // Collect all meshes in tiltGroup (moons, spacecraft, markers)
+      tiltGroup.traverse(function(obj) {
+        if (obj.isMesh && obj.userData && obj.userData._analysis) targets.push(obj);
+      });
+      // Also check planet itself
+      if (planet && planet.userData && planet.userData._analysis) targets.push(planet);
+      // Check scene-level groups
+      scene.traverse(function(obj) {
+        if (obj.isMesh && obj.userData && obj.userData._analysis && targets.indexOf(obj) === -1) targets.push(obj);
+      });
+      var hits = rc.intersectObjects(targets, true);
+      if (!hits.length) return;
+      var obj = hits[0].object;
+      for (var i = 0; i < 5; i++) {
+        if (obj.userData && obj.userData._analysis) break;
+        if (obj.parent) obj = obj.parent; else break;
+      }
+      if (obj.userData && obj.userData._analysis) {
+        RS.showAnalysisPanel(obj.userData._analysis);
+      }
+    });
+  })();
 
   // ═══ RESET VIEW BUTTON ═══
   // Captures the initial camera position/target and resets to it on click.
