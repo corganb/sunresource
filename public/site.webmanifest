@@ -1,0 +1,29 @@
+{
+  "name": "SunResource",
+  "short_name": "Sun",
+  "description": "SunResource by Corgan Studio",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#ffaa00",
+  "background_color": "#1a0a00",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}
