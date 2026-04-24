@@ -278,8 +278,11 @@
 
   // ═══ SOLAR-ORBITING SPACECRAFT ═══
   // Real missions currently operating in the inner heliosphere.
-  // All orbits are approximate Keplerian elements; v0.3 will integrate
-  // live JPL Horizons queries.
+  // Orbit shapes use approximate Keplerian elements (a, e, i) from NASA
+  // mission pages; real instantaneous positions come from JPL Horizons via
+  // the shared Supabase edge function `horizons-ephemeris` at page load
+  // (see fetchHorizonsPositions below). If the fetch fails, spacecraft
+  // render at their Kepler-simulated position as a fallback.
   //
   // Scene scale: Sun radius 1.5 = 695,700 km real, so 1 unit = 463,800 km.
   // Earth orbit (1 AU = 149.6 M km) = 322 units. Mercury orbit = 124 units.
@@ -288,6 +291,7 @@
   var SOLAR_SPACECRAFT = [
     {
       name: 'Parker Solar Probe',
+      slug: 'parker',
       // a = 0.388 AU = 58 M km = 125 units; e = 0.853
       a_km: 58e6,
       e: 0.853,
@@ -298,8 +302,8 @@
     },
     {
       name: 'SOHO',
+      slug: 'soho',
       // Sun-Earth L1, ~1.5 M km from Earth, ~0.99 AU from Sun
-      // We place it just inside Earth's orbit at a_km ~148 M km
       a_km: 148e6,
       e: 0.002,
       i: 7.25,
@@ -309,18 +313,19 @@
     },
     {
       name: 'SolO',
+      slug: 'solo',
       // ESA Solar Orbiter, elliptical 0.28-1.2 AU, period 168 days
       a_km: 110e6,
       e: 0.77,
-      i: 24.0,  // inclined ecliptic-raising orbit
+      i: 24.0,
       period_days: 168,
       color: 0xddccff,
       radius: 0.1,
     },
     {
       name: 'SDO',
+      slug: 'sdo',
       // Geosynchronous from Earth, so effectively at Earth's heliocentric position
-      // Place at Earth's orbit
       a_km: 149.6e6,
       e: 0.0167,
       i: 7.25,
@@ -330,7 +335,8 @@
     },
     {
       name: 'STEREO-A',
-      // NASA STEREO, ahead of Earth in solar orbit (slightly inside Earth's)
+      slug: 'stereo-a',
+      // NASA STEREO, slightly inside Earth's heliocentric orbit
       a_km: 144e6,
       e: 0.006,
       i: 7.25,
@@ -505,6 +511,35 @@
     ));
   });
 
+  // ═══ REAL SPACECRAFT POSITIONS (JPL Horizons via Supabase edge fn) ═══
+  // Fetches heliocentric ecliptic state vectors for each spacecraft and pins
+  // the mesh at the real current position. Horizons REF_PLANE=ECLIPTIC gives
+  // (X, Y, Z) km with +Z as ecliptic north. Scene uses +Y up, so map
+  // (x, y, z) -> (x, z, -y) to land on the scene's right-handed ecliptic.
+  (function fetchHorizonsPositions() {
+    var FN_BASE = 'https://pxocavaczfjcpvqeiznt.supabase.co/functions/v1/horizons-ephemeris';
+    var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4b2NhdmFjemZqY3B2cWVpem50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NDA3MDcsImV4cCI6MjA5MDExNjcwN30.48A2xW4YoGCESsVurxmW3MP9x_lq2AJ8XeS8nR2RVGI';
+    scMeshes.forEach(function(s) {
+      if (!s.slug) return;
+      fetch(FN_BASE + '?id=' + encodeURIComponent(s.slug), {
+        headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY }
+      })
+      .then(function(r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); })
+      .then(function(data) {
+        if (!data || !isFinite(data.x_km)) return;
+        var sx = data.x_km / SCENE_UNIT_KM;
+        var sy = data.z_km / SCENE_UNIT_KM;
+        var sz = -data.y_km / SCENE_UNIT_KM;
+        s.real_xyz = { x: sx, y: sy, z: sz, epoch_cal: data.epoch_cal };
+        s.mesh.position.set(sx, sy, sz);
+      })
+      .catch(function(err) {
+        // Silent fallback: mesh stays on Kepler simulation
+        if (window.console) console.warn('[horizons] ' + s.name + ': ' + err.message);
+      });
+    });
+  })();
+
   // ═══ SCALE REFERENCE RINGS ═══
   // Helper: circular polyline at a given AU, labeled. Gives users a sense
   // of scale for the Parker Solar Probe deep perihelion vs Earth's orbit.
@@ -561,6 +596,8 @@
     __rs_last_wall = __rs_now;
     var simTime = __rs_sim_time; // 800x time compression
     scMeshes.forEach(function(s) {
+      // Real position from JPL Horizons pins the mesh; skip Kepler sim.
+      if (s.real_xyz) return;
       var n = (Math.PI * 2) / s.period;
       var M = (s.phase + n * simTime) % (Math.PI * 2);
       var E = solveKepler(M, s.e);
