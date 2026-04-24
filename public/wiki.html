@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wiki | SunResource | Resource Systems by Corgan Studio, Inc.</title>
+<meta name="description" content="Reference wiki for the Sun: physical parameters, solar structure, active missions (Parker Solar Probe, SOHO, Solar Orbiter, SDO, STEREO-A), and scientific data sources.">
+<link rel="canonical" href="https://sunresource.net/wiki">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0c10; color: rgba(245,248,255,0.95); font-family: 'JetBrains Mono', 'SF Mono', monospace; line-height: 1.7; }
+  .container { max-width: 820px; margin: 0 auto; padding: 60px 24px; }
+  .back { display: inline-block; color: #FFD54F; text-decoration: none; font-size: 12px; letter-spacing: 0.05em; margin-bottom: 40px; opacity: 0.7; }
+  .back:hover { opacity: 1; }
+  h1 { font-size: 30px; font-weight: 600; margin-bottom: 8px; color: #FFD54F; }
+  .subtitle { font-size: 12px; color: rgba(160,172,200,0.65); margin-bottom: 48px; letter-spacing: 0.04em; }
+  h2 { font-size: 16px; font-weight: 600; color: #FFD54F; margin: 40px 0 12px; letter-spacing: 0.04em; }
+  h3 { font-size: 13px; font-weight: 600; color: rgba(200,210,230,0.85); margin: 20px 0 8px; }
+  p { font-size: 13px; color: rgba(160,172,200,0.85); margin-bottom: 12px; }
+  .table { display: grid; grid-template-columns: 180px 1fr; gap: 10px 24px; font-size: 12.5px; margin: 16px 0; }
+  .table .k { color: rgba(200,210,230,0.7); }
+  .table .v { color: rgba(160,172,200,0.85); }
+  .mission { border-left: 2px solid rgba(255,213,79,0.3); padding-left: 14px; margin-bottom: 20px; }
+  .mission-name { font-size: 14px; font-weight: 600; color: rgba(200,210,230,0.95); margin-bottom: 4px; }
+  .mission-meta { font-size: 11px; color: rgba(130,145,175,0.7); margin-bottom: 6px; letter-spacing: 0.04em; }
+  .mission-desc { font-size: 12.5px; color: rgba(160,172,200,0.8); }
+  a { color: #FFD54F; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .sources { font-size: 11px; color: rgba(130,145,175,0.6); margin-top: 48px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+  .sources a { color: rgba(200,210,230,0.7); }
+  .footer { margin-top: 48px; font-size: 11px; color: rgba(130,145,175,0.50); display: flex; gap: 16px; flex-wrap: wrap; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+  .footer a { color: rgba(160,172,200,0.65); }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="/" class="back">&larr; Back to SunResource</a>
+  <h1>Sun Reference Wiki</h1>
+  <div class="subtitle">Physical parameters, solar structure, and active missions</div>
+
+  <h2>Overview</h2>
+  <p>The Sun is a G2V main-sequence star at the center of the Solar System. It formed approximately 4.6 billion years ago from a gravitational collapse in a region of a molecular cloud. It contains 99.86% of the Solar System's total mass and powers all major physical and biological processes on inner planets through fusion-driven radiation.</p>
+
+  <h2>Physical parameters</h2>
+  <div class="table">
+    <div class="k">Type</div><div class="v">G2V main-sequence star</div>
+    <div class="k">Radius</div><div class="v">695,700 km (109x Earth)</div>
+    <div class="k">Mass</div><div class="v">1.989 x 10^30 kg (333,000x Earth)</div>
+    <div class="k">Luminosity</div><div class="v">3.828 x 10^26 W</div>
+    <div class="k">Surface temperature</div><div class="v">5,778 K (photosphere)</div>
+    <div class="k">Core temperature</div><div class="v">~15.7 million K</div>
+    <div class="k">Rotation (equator)</div><div class="v">25.05 days</div>
+    <div class="k">Age</div><div class="v">~4.6 billion years</div>
+    <div class="k">Composition</div><div class="v">~74% hydrogen, ~24% helium, ~2% heavier elements</div>
+    <div class="k">Solar cycle</div><div class="v">~11 years (sunspot and magnetic activity)</div>
+  </div>
+
+  <h2>Structure</h2>
+  <p><strong style="color:#FFD54F">Core</strong>: fusion zone where hydrogen converts to helium via the proton-proton chain. Temperature ~15.7 million K, density ~150 g/cm^3.</p>
+  <p><strong style="color:#FFD54F">Radiative zone</strong>: energy transported outward by photon scattering. Can take 100,000 to 1 million years for a photon to traverse.</p>
+  <p><strong style="color:#FFD54F">Convective zone</strong>: outermost ~30% of the Sun's radius. Hot plasma rises, cooler plasma sinks. Drives surface granulation.</p>
+  <p><strong style="color:#FFD54F">Photosphere</strong>: visible "surface", ~500 km thick. Source of the sunlight we see.</p>
+  <p><strong style="color:#FFD54F">Chromosphere</strong>: thin layer above photosphere, visible during total solar eclipses as a pink glow.</p>
+  <p><strong style="color:#FFD54F">Corona</strong>: extended outer atmosphere, million-degree plasma. Extends millions of kilometers into space. Source of the solar wind.</p>
+
+  <h2>Active missions (tracked in viewer)</h2>
+
+  <div class="mission">
+    <div class="mission-name">Parker Solar Probe (NASA)</div>
+    <div class="mission-meta">Launched 2018-08-12 | Highly elliptical heliocentric orbit</div>
+    <div class="mission-desc">First spacecraft to "touch" the Sun's corona. Perihelion ~6.1 million km from the Sun, well inside Mercury's orbit. Uses Venus gravity assists to reduce perihelion over 24 planned orbits. Measures magnetic fields, plasma, and accelerated particles in the corona.</div>
+  </div>
+
+  <div class="mission">
+    <div class="mission-name">SOHO (ESA / NASA)</div>
+    <div class="mission-meta">Launched 1995-12-02 | Sun-Earth L1 halo orbit</div>
+    <div class="mission-desc">Solar and Heliospheric Observatory at the Sun-Earth L1 Lagrange point, ~1.5 million km from Earth toward the Sun. Continuous solar observation. Has discovered more than 5,000 comets. Provides near-real-time EUV and coronagraph imagery.</div>
+  </div>
+
+  <div class="mission">
+    <div class="mission-name">Solar Orbiter (ESA / NASA)</div>
+    <div class="mission-meta">Launched 2020-02-10 | Inclined elliptical 0.28-1.2 AU orbit</div>
+    <div class="mission-desc">Highly inclined heliocentric orbit using Venus gravity assists to raise inclination and image the Sun's polar regions for the first time in visible and EUV wavelengths. Complements Parker Solar Probe with remote sensing instruments where Parker only carries in-situ instruments.</div>
+  </div>
+
+  <div class="mission">
+    <div class="mission-name">SDO (NASA)</div>
+    <div class="mission-meta">Launched 2010-02-11 | Geosynchronous Earth orbit</div>
+    <div class="mission-desc">Solar Dynamics Observatory in geosynchronous orbit above White Sands, New Mexico. Captures continuous high-resolution EUV and magnetogram imagery. The AIA and HMI instruments image the Sun every 10-12 seconds in multiple wavelengths.</div>
+  </div>
+
+  <div class="mission">
+    <div class="mission-name">STEREO-A (NASA)</div>
+    <div class="mission-meta">Launched 2006-10-26 | Heliocentric, slightly ahead of Earth</div>
+    <div class="mission-desc">Solar Terrestrial Relations Observatory - Ahead. Originally one of a pair (the -B spacecraft was lost in 2014). Provides a different viewing angle of the Sun than Earth-based observatories, enabling stereoscopic study of coronal mass ejections and their Earth-directed trajectories.</div>
+  </div>
+
+  <h2>Solar phenomena</h2>
+  <p><strong style="color:#FFD54F">Sunspots</strong>: cooler regions of intense magnetic activity. Appear dark against the photosphere. Count follows the 11-year solar cycle.</p>
+  <p><strong style="color:#FFD54F">Solar flares</strong>: sudden releases of magnetic energy. Classified A, B, C, M, X (logarithmic). X-class flares can disrupt radio communications and satellite operations.</p>
+  <p><strong style="color:#FFD54F">Coronal mass ejections (CMEs)</strong>: large expulsions of plasma and magnetic field from the corona. Can trigger geomagnetic storms on Earth.</p>
+  <p><strong style="color:#FFD54F">Solar wind</strong>: continuous stream of charged particles from the corona. Average speed ~400 km/s in the ecliptic plane.</p>
+
+  <h2>Further reading</h2>
+  <p><a href="https://science.nasa.gov/sun/" target="_blank">NASA Sun Science</a></p>
+  <p><a href="https://en.wikipedia.org/wiki/Sun" target="_blank">Wikipedia: Sun</a></p>
+  <p><a href="https://parkersolarprobe.jhuapl.edu/" target="_blank">Parker Solar Probe mission page</a></p>
+  <p><a href="https://soho.nascom.nasa.gov/" target="_blank">SOHO mission page</a></p>
+  <p><a href="https://sdo.gsfc.nasa.gov/" target="_blank">SDO mission page</a></p>
+  <p><a href="https://stereo.gsfc.nasa.gov/" target="_blank">STEREO mission page</a></p>
+
+  <div class="sources">
+    Physical parameters sourced from NASA Goddard Sun fact sheet and IAU 2015 nominal solar values. Mission summaries compiled from mission operator pages (NASA, ESA). All values are current as of the page publish date and may be refreshed periodically.
+  </div>
+
+  <div class="footer">
+    <a href="/">Home</a>
+    <a href="/faq">FAQ</a>
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <span style="margin-left:auto">&copy; 2025-2026 Corgan Studio, Inc.</span>
+  </div>
+</div>
+</body>
+</html>
