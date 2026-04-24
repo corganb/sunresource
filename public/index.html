@@ -741,7 +741,7 @@
   // Animate
   function tick() {
     requestAnimationFrame(tick);
-    planet.rotation.y += 0.0000029;
+    planet.rotation.y += 0.0000029 * ((window.__rs_time_scale != null ? window.__rs_time_scale : 60) / 60);
     updateMoons();
     updatePlanets();
     controls.update();
