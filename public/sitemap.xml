@@ -4,5 +4,22 @@
   <url><loc>https://sunresource.net/faq</loc><lastmod>2026-04-24</lastmod></url>
   <url><loc>https://sunresource.net/privacy</loc><lastmod>2026-04-24</lastmod></url>
   <url><loc>https://sunresource.net/terms</loc><lastmod>2026-04-24</lastmod></url>
-  <url><loc>https://sunresource.net/wiki</loc><lastmod>2026-04-24</lastmod></url>
+  <url>
+    <loc>https://sunresource.net/research</loc>
+    <lastmod>2026-04-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://sunresource.net/research/parker-corona-observations</loc>
+    <lastmod>2026-04-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sunresource.net/research/solar-cycle-25-activity</loc>
+    <lastmod>2026-04-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
