@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geoeffective CME identification and operational lead time | SunResource Research Archive</title>
+<meta name="description" content="Review of the operational coronal mass ejection (CME) forecasting pipeline at NOAA SWPC, including SOHO LASCO and STEREO COR2 imaging, the WSA-Enlil heliospheric model, and the lead-time and skill-score record for arrival-time and Bz prediction.">
+<link rel="canonical" href="/research/geoeffective-cme-lead-time">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Geoeffective CME identification and operational lead time">
+<meta property="og:description" content="Review of the operational coronal mass ejection (CME) forecasting pipeline at NOAA SWPC, including SOHO LASCO and STEREO COR2 imaging, the WSA-Enlil heliospheric model, and the lead-time and skill-score record for arrival-time and Bz prediction.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-04-28">
+<meta property="article:author" content="Corgan Studio, Inc.">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0c10; color: rgba(245,248,255,0.95); font-family: 'JetBrains Mono', 'SF Mono', monospace; line-height: 1.7; }
+  .container { max-width: 760px; margin: 0 auto; padding: 60px 24px 80px; }
+  .back { display: inline-block; color: #ffaa55; text-decoration: none; font-size: 12px; letter-spacing: 0.05em; margin-bottom: 32px; opacity: 0.7; }
+  .back:hover { opacity: 1; }
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 10px; color: #ffaa55; line-height: 1.25; }
+  .abstract { font-size: 14px; color: rgba(200,210,230,0.85); margin-bottom: 16px; max-width: 700px; }
+  .meta { font-size: 11px; color: rgba(160,172,200,0.55); letter-spacing: 0.04em; margin-bottom: 36px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  article h2 { font-size: 13px; font-weight: 600; color: #ffaa55; margin: 32px 0 12px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.85; }
+  article p { font-size: 14px; color: rgba(220,228,242,0.9); margin-bottom: 14px; }
+  article p strong { color: rgba(245,248,255,1); }
+  .refs { margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+  .refs h2 { font-size: 12px; font-weight: 600; color: rgba(180,192,210,0.85); margin-bottom: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .refs ol { list-style: decimal; padding-left: 24px; font-size: 12px; color: rgba(180,192,210,0.78); }
+  .refs li { margin-bottom: 8px; line-height: 1.5; }
+  .refs a { color: rgba(180,210,255,0.85); text-decoration: none; word-break: break-all; }
+  .refs a:hover { color: #ffaa55; }
+  .tier-note { margin-top: 32px; padding: 14px 16px; border-radius: 4px; background: rgba(80,140,220,0.08); border: 1px solid rgba(80,140,220,0.30); color: rgba(200,220,245,0.9); font-size: 12px; line-height: 1.6; }
+  .tier-note strong { color: #7eb6ff; }
+  .tier-note .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(80,140,220,0.15); border: 1px solid rgba(80,140,220,0.4); color: #7eb6ff; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-right: 8px; vertical-align: middle; }
+  .tier-note a { color: #7eb6ff; }
+  .footer { margin-top: 48px; font-size: 11px; color: rgba(130,145,175,0.5); display: flex; gap: 16px; flex-wrap: wrap; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+  .footer a { color: rgba(160,172,200,0.65); text-decoration: none; }
+  .footer a:hover { color: rgba(200,210,230,0.9); }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="/research" class="back">&larr; Research Archive</a>
+  <h1>Geoeffective CME identification and operational lead time</h1>
+  <div class="abstract">Review of the operational coronal mass ejection (CME) forecasting pipeline at NOAA SWPC, including SOHO LASCO and STEREO COR2 imaging, the WSA-Enlil heliospheric model, and the lead-time and skill-score record for arrival-time and Bz prediction.</div>
+  <div class="meta">2026-04-28 &middot; 6 min read &middot; Reviewed by Corgan Studio, Inc.</div>
+
+  <article>
+
+    <h2>Introduction</h2>
+    <p>Coronal mass ejections (CMEs) directed at Earth are the dominant driver of major geomagnetic storms. Operational forecasting requires identification of the CME at the Sun, propagation modelling through the heliosphere, and prediction of the embedded magnetic-field structure at L1. The forecasting pipeline at NOAA's Space Weather Prediction Center (SWPC) and the equivalent at ESA's Space Weather Coordination Centre integrates coronagraph imagery, magnetograph context, and heliospheric simulation. This report reviews the pipeline's components, lead time, and skill against major events.</p>
+
+    <h2>CME identification at the Sun</h2>
+    <p>CMEs are identified in white-light coronagraph imagery as expanding bright structures launched into the field of view above the solar limb. The principal coronagraph data sources are SOHO/LASCO (1996-, in operation past its design lifetime) and the STEREO-A COR2 instrument (2006-). The geometric viewpoint of STEREO-A relative to Earth has varied over the mission lifetime; through 2024-2026 STEREO-A is again near the Sun-Earth line and has limited stereoscopic separation from SOHO. The next-generation NASA Polarimeter to Unify the Corona and Heliosphere (PUNCH) launched in late 2024 to provide higher-cadence wide-field coronal imaging.</p>
+    <p>Earth-directed CMEs frequently appear as halo events in coronagraph imagery (the bright disc surrounding the Sun on all sides) when the line of sight is along the propagation direction. Halo identification is supplemented by magnetograph observations of the source-region eruption, EUV imaging of the post-eruption arcade and dimming, and Type II radio burst signatures.</p>
+
+    <h2>Heliospheric propagation modelling</h2>
+    <p>The operational propagation model at SWPC is WSA-Enlil, a coupled MHD code combining the Wang-Sheeley-Arge solar wind model with the Enlil time-dependent heliospheric MHD code. The model takes CME initial parameters (speed, direction, angular extent, mass) from coronagraph fitting and propagates the disturbance to L1 in approximately 30 minutes of compute time. Operational use began in 2011 and has produced a multi-cycle skill-score archive.</p>
+    <p>The European Heliospheric Forecasting Information Asset (EUHFORIA) provides an alternative propagation model with similar architecture, in operational use at ESA SWE since 2018. Both models accept the same coronagraph-derived input parameters, and skill-score comparisons across the two models help bound the systematic errors of CME-arrival-time forecasting.</p>
+
+    <h2>Arrival-time skill</h2>
+    <p>The mean absolute error in CME arrival-time forecasts is approximately 10 hours across the operational record. The error is approximately symmetric (no systematic early/late bias on average) but the distribution has heavy tails: approximately 10 percent of forecasts have errors exceeding 20 hours. The principal contributors to forecast error are: (1) uncertainty in the initial CME geometry and speed from coronagraph fitting, particularly for events without good stereoscopic coverage; (2) uncertainty in the ambient solar wind structure through which the CME propagates; (3) absence of in-situ measurements between the Sun and L1 that would allow forecast updates en route. Operational lead time for major events is typically 24-72 hours, providing useful time for power-grid and satellite-operator preparation.</p>
+
+    <h2>Bz prediction</h2>
+    <p>Geomagnetic storm intensity is governed primarily by the southward component (Bz) of the embedded interplanetary magnetic field at L1. Bz prediction at the CME stage is substantially less mature than arrival-time prediction; typical operational forecasts provide only an indication of likely magnitude, not a quantitative time series. Lead time for Bz is therefore set by the ACE / DSCOVR L1 monitor (approximately 30-60 minutes warning before the disturbance arrives at Earth's magnetopause). Improving CME magnetic-structure forecasting is an active research area, with magnetogram-based flux-rope reconstruction techniques showing promise but not yet operationalised.</p>
+
+    <h2>The May 2024 Gannon storm</h2>
+    <p>The May 2024 Gannon storm provided the largest single test of the operational forecasting pipeline since the 2003 Halloween storms. The associated active region (NOAA AR 13664) produced a sequence of X-class flares and CMEs over five days, with multiple Earth-directed events overlapping in transit time. Arrival-time forecasts for the major events were within 4-6 hours of the observed L1 arrival. The forecast geomagnetic-storm intensity was correctly identified as severe, although the actual G5 (extreme) classification exceeded most pre-arrival estimates by approximately one storm-scale category.</p>
+
+    <h2>Outlook</h2>
+    <p>The Vigil ESA mission, planned for launch in 2031, will operate at the Sun-Earth Lagrange point L5 to provide an off-axis view of the corona that substantially improves CME geometric fitting. NASA's Geospace Dynamics Constellation will provide higher-resolution magnetospheric response monitoring. PUNCH continues to validate. Progress on Bz prediction remains the principal forecasting frontier; success would extend useful lead time from approximately one hour (set by L1 monitors) to 24-72 hours (set by CME launch detection).</p>
+  </article>
+
+  <div class="refs">
+    <h2>References</h2>
+    <ol>
+      <li><a href="https://www.swpc.noaa.gov/" target="_blank" rel="noopener">NOAA Space Weather Prediction Center</a></li>
+      <li><a href="https://sohowww.nascom.nasa.gov/" target="_blank" rel="noopener">NASA Solar and Heliospheric Observatory (SOHO)</a></li>
+      <li><a href="https://stereo.gsfc.nasa.gov/" target="_blank" rel="noopener">NASA STEREO mission</a></li>
+      <li><a href="https://www.esa.int/Space_Safety/Space_Weather" target="_blank" rel="noopener">ESA Space Weather Office</a></li>
+      <li><a href="https://punch.space.swri.edu/" target="_blank" rel="noopener">NASA PUNCH mission</a></li>
+    </ol>
+  </div>
+
+  <div class="tier-note"><span class="pill">Researcher</span><strong>Citation exports.</strong> This article is open and free to read. Researcher tier subscribers can download a citation-ready PDF (with formatted bibliography), BibTeX entry, and persistent article identifier for use in published work. <a href="/">See plans</a>.</div>
+
+  <div class="footer">
+    <a href="/">Home</a>
+    <a href="/research">Research Archive</a>
+    <a href="/faq">FAQ</a>
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+  </div>
+</div>
+</body>
+</html>
